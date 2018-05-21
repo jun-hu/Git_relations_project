@@ -1,88 +1,77 @@
+from urllib.request import urlopen
+import sys
 from bs4 import BeautifulSoup
 import urllib.request
 import re 
 import time
+set_commiters = set()
 
 
-# 출력 파일 명i
-OUTPUT_FILE_NAME = 'output.txt'
-OUTPUT_FILE_NAME1 = 'output1.txt'
-OUTPUT_FILE_NAME2 = 'output.txt'
+OUTPUT_FILE_NAME = 'Repository.txt'
+OUTPUT_FILE_NAME1 = 'Commiter.txt'
 
-# 긁어 올 URL
-URL = 'https://github.com/RelaxedJS/ReLaXed'\ # 깃터브 유저의  URL
+base_url = "https://github.com/tensorflow/tensorflow"
+commits_url = "/commits/master"
+URL1 = base_url + '/commits/master'
+URL2= 'https://github.com'
 
-URL1 = URL+'/commits/master' # 깃터브 유저의 레저피토리 URL
+plain_text = urlopen(base_url).read()
+soup = BeautifulSoup(plain_text, 'html.parser')
 
-URL2= 'https://github.com/' # 깃터브의 URL
+def get_topics():
+    topics = soup.select("#topics-list-container a")
+    text1 = ''
+    for topic in topics:
+        text1 = text1 + str(topic.text)
+        print(topic.text)
+    return text1
 
-a=0
-text1 = []
+def get_languages():
+    langs = soup.select(".overall-summary.overall-summary-bottomless a .lang")
+    text1=''
+    for lang in langs:
+        text1 = text1+str(lang.text)
+        print(lang.text)
+    return text1
 
-
-# 크롤링 함수
-def get_text(URL): # 레퍼지토리의 토픽 키워트를 뽑아내는 함수
-    source_code_from_URL = urllib.request.urlopen(URL)
-    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
-    text = ''
-    for item in soup.find_all("div",{"class":"list-topics-container f6 mt-1"}):
-        text = text + str(item.find_all(text=True))
-    return text
-
-
-def get_text1(URL): # # 레퍼지토리의 프로그래밍 언어 사용 비율 함수
-    source_code_from_URL = urllib.request.urlopen(URL) 
-    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
-    text = ''
-    for item in soup.find_all("div",{"class":"repository-lang-stats"}):
-        text = text + str(item.find_all(text=True))
-    return text
- 
-
-def get_text2(URL1): # 레퍼지토리의 커밋으로 들어가서 커밋터들의 정보를 뽑아오는 함수
-    source_code_from_URL = urllib.request.urlopen(URL1) 
-    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
-    text = ''
-    for item in soup.find_all("a",{"class":"commit-author tooltipped tooltipped-s user-mention"}):
-        text = text + str(item.find_all(text=True))
-    return text
+def get_percentage():
+    percentages = soup.select(".overall-summary.overall-summary-bottomless a .percent")
+    text1=''
+    for percent in percentages:
+        text1=text1+str(percent.text)
+        print(percent.text)
+    return text1
 
 
-def get_text3(URL1): # 레퍼지토리의 커밋으로 들어가서 커밋터들의 정보를 뽑아오는 함수를 list에 적재
-    source_code_from_URL = urllib.request.urlopen(URL1)
-    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
-    text = ''
-    for item in soup.find_all("a",{"class":"commit-author tooltipped tooltipped-s user-mention"}):
-       # text = text + str(item.find_all(text=True))
-        text1.append(str(item.find_all(text=True)))
-	#print(text[a])
-    return text
 
-get_text3(URL1)
-#####################################33
-#print(text1)
+def get_commiters(page):
+    plain_text_commits = urlopen(page).read()
+    soup_commiter = BeautifulSoup(plain_text_commits, 'html.parser')
+    commiters = soup_commiter.select(".AvatarStack.flex-self-start a")
+    pages = soup_commiter.select(".paginate-container a")
+    for commiter in commiters:
+        set_commiters.add(commiter.get("href"))
+    return pages[pages.__len__() - 1].get('href')
 
-##########################
-
-
-def get_textt(URL): # 레포지토리 갯수를 뽑아내는 함수
-    source_code_from_URL = urllib.request.urlopen(URL)
+###################################################3
+def get_textt(base_url):
+    source_code_from_URL = urllib.request.urlopen(base_url)
     soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
     text = ''
     for item in soup.find_all('span',{"class":"Counter"}):
         text = text + str(item.find_all(text=True))
     return text
 
-def get_textt1(URL): # 커밋터의 아이디를 뽑아내는 함수
-    source_code_from_URL = urllib.request.urlopen(URL)
+def get_textt1(base_url):
+    source_code_from_URL = urllib.request.urlopen(base_url)
     soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
     text = ''
     for item in soup.find_all('span',{"class":"p-nickname vcard-username d-block"}):
         text = text + str(item.find_all(text=True))
     return text
 
-def get_textt2(URL):
-    source_code_from_URL = urllib.request.urlopen(URL)
+def get_textt2(base_url):
+    source_code_from_URL = urllib.request.urlopen(base_url)
     soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
     text = ''
     for item in soup.find_all('span',{"class":"p-org"}):
@@ -90,85 +79,68 @@ def get_textt2(URL):
     return text
 
 
-def get_textt3(URL): # 커밋터의 사는 지역을 뽑아내는 함수
-    source_code_from_URL = urllib.request.urlopen(URL) 
-    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
-    text = ''
-    for item in soup.find_all('span',{"class":"p-label"}):
-        text = text + str(item.find_all(text=True))
-    return text
+
+################################################
+
+get_topics()
+get_languages()
+get_percentage()
+
+next_page = get_commiters(base_url + commits_url)
 
 
-####################################
-
-URL_ = []
 open_output_file = open(OUTPUT_FILE_NAME, 'w')
-
-#for i in text1:
-#	i = re.sub('[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]','',i)
-#	URL3 = URL2+i
-#	URL_.append(URL3)
-#	print(URL3)
-#	result_textt = get_textt(URL3)
-#	open_output_file.write(result_textt)
-#
-#	result_textt1 = get_textt1(URL3)
-#        open_output_file.write(result_textt1)
-#
-#	result_textt2 = get_textt2(URL3)
-#        open_output_file.write(result_textt2)
-#
-#	result_textt3 = get_textt3(URL3)
-#       open_output_file.write(result_textt3)
+open_output_file1 = open(OUTPUT_FILE_NAME1, 'w')
 
 
-
-	
-
-#print(URL_)
-#open_output_file.close()
-
-#############################3
-
-# 메인 함수
-def main():
-#    open_output_file = open(OUTPUT_FILE_NAME, 'w')
-    result_text = get_text(URL)
-    result_text1 = get_text1(URL)
-    #result_text2 = get_text2(URL1)
+result_text = get_topics()
+result_text1 = get_languages()
+result_text2 = get_percentage()
+open_output_file.write(result_text)
+open_output_file.write(result_text1)
+open_output_file.write(result_text2)
 
 
-    open_output_file.write(result_text)
-    open_output_file.write(result_text1)
-    #open_output_file.write(result_text2)
+for i in range(0,10):
+    next_page = get_commiters(next_page)
+    print(next_page)
+
+#############################33
 sum = 0
 
+#
+#def get_text3(URL1):
+#    source_code_from_URL = urllib.request.urlopen(URL1)
+#    soup = BeautifulSoup(source_code_from_URL, 'lxml', from_encoding='utf-8')
+#    text = ''
+#    for item in soup.find_all("a",{"class":"commit-author tooltipped tooltipped-s user-mention"}):
+#       # text = text + str(item.find_all(text=True))
+#        text1.append(str(item.find_all(text=True)))
+	#print(text[a])
+#    return text
 
-		
-#open_output_file.close()
-
-
-for i in text1:  # 커밋터들의 정보를 하나씩 파고들어가서 커밋터의 정보를 뽑아내는 for
-        i = re.sub('[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]','',i)
+text22 = list(set_commiters)
+for i in text22:
+        #i = re.sub('[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]','',i)
         URL3 = URL2+i
 ##       URL_.append(URL3)
         print(URL3)
         result_textt = get_textt(URL3)
-        open_output_file.write(result_textt)
+        open_output_file1.write(result_textt)
 
         result_textt1 = get_textt1(URL3)
-        open_output_file.write(result_textt1)
+        open_output_file1.write(result_textt1)
 
         result_textt2 = get_textt2(URL3)
-        open_output_file.write(result_textt2)
+        open_output_file1.write(result_textt2)
 
-        result_textt3 = get_textt3(URL3)
-        open_output_file.write(result_textt3)
-	
+       
         sum = sum + 1
-        if sum==10:
-                time.sleep(20)
+        if sum==100:
+                #time.sleep(30)
+                break;
                 sum=0
 
-if __name__ == '__main__':
-    main()
+
+#print('중복제거한 총 커미터들 : ',set_commiters.__len__(),'명')
+#print(set_commiters)

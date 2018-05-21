@@ -1,10 +1,13 @@
 import re
  
 # 입,출력 파일명
-INPUT_FILE_NAME = 'output.txt'
-OUTPUT_FILE_NAME = 'output_cleand.txt'
+INPUT_FILE_NAME = 'Repository.txt'
+OUTPUT_FILE_NAME = 'output_cleand1.txt'
  
- 
+
+INPUT_FILE_NAME1 = 'Commiter.txt'
+OUTPUT_FILE_NAME1 = 'output_cleand2.txt'
+
 # 클리닝 함수
 def clean_text(text):
     cleaned_text = re.sub('   ', '', text)
@@ -20,6 +23,13 @@ def main():
     write_file = open(OUTPUT_FILE_NAME, 'w')
     text = read_file.read()
     text = clean_text(text)
+
+    read_file1 = open(INPUT_FILE_NAME1, 'r')
+    write_file1 = open(OUTPUT_FILE_NAME1, 'w')
+    text1 = read_file1.read()
+    text1 = clean_text(text1)
+    write_file1.write(text1)
+
     write_file.write(text)
     read_file.close()
     write_file.close()
