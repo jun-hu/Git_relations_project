@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[77]:
 
 
 from pyspark.sql import SparkSession
@@ -12,7 +12,7 @@ from pyspark.sql.functions import *
 spark = SparkSession     .builder     .appName("Python Spark SQL basic example")     .config("spark.some.config.option", "some-value")     .getOrCreate() 
 
 
-# In[2]:
+# In[78]:
 
 
 df=spark.read.json("/home/project/followinfo2.json", multiLine=True,mode="PERMISSIVE")
@@ -30,7 +30,7 @@ commiter=df.select("reposWhatiSelect.meteor.commiters.id").collect()
 
 
 
-# In[3]:
+# In[79]:
 
 
 followers_list=[]
@@ -48,7 +48,7 @@ for i in range(0,len(followers[0][0])) :
 followers_list    
 
 
-# In[4]:
+# In[80]:
 
 
 following_list=[]
@@ -69,7 +69,7 @@ for i in following_list :
     print(i)
 
 
-# In[5]:
+# In[81]:
 
 
 pdf=pd.DataFrame()
@@ -94,7 +94,7 @@ df = df.select(row_number().over(w).alias("ID"), col("*"))
 df.show(40)
 
 
-# In[6]:
+# In[82]:
 
 
 ##################################3
@@ -108,7 +108,7 @@ df.show(40)
         
 
 
-# In[12]:
+# In[83]:
 
 
 
@@ -151,7 +151,7 @@ for i in range(0,len(following[0][0])) :
   
 
 
-# In[9]:
+# In[84]:
 
 
 leng = (0,len(following[0][0]))
@@ -176,7 +176,7 @@ for i in range(0,len(following[0][0])) :
   ########################          
 
 
-# In[14]:
+# In[85]:
 
 
 
@@ -195,47 +195,73 @@ df = pd.DataFrame({ 'from':commiter1, 'to':follower_r1})
 df
  
 # Build your graph
-G=nx.from_pandas_edgelist(df, 'from', 'to')
+G=nx.from_pandas_edgelist(df, 'from', 'to', create_using=nx.DiGraph())
  
 # Fruchterman Reingold
-nx.draw(G, with_labels=True,font_size=8, node_size=2000, node_color="skyblue", pos=nx.fruchterman_reingold_layout(G),arrows=True)
+nx.draw(G, with_labels=True,font_size=8, node_size=1000, node_color="skyblue", pos=nx.fruchterman_reingold_layout(G),arrows=True)
 plt.title("fruchterman_reingold")
  
 
 plt.title("spring")
 
 
-# In[15]:
+# In[86]:
 
 
 df1 = pd.DataFrame({ 'from':commiter2, 'to':following_r2})
 df1
  
 # Build your graph
-G=nx.from_pandas_edgelist(df1, 'from', 'to')
+G=nx.from_pandas_edgelist(df1, 'from', 'to' , create_using=nx.DiGraph())
  
 # Fruchterman Reingold
-nx.draw(G, with_labels=True,font_size=8, node_size=2000, node_color="skyblue", pos=nx.fruchterman_reingold_layout(G),arrows=True)
+nx.draw(G, with_labels=True,font_size=8, node_size=1000, node_color="skyblue", pos=nx.fruchterman_reingold_layout(G),arrows=True)
 plt.title("fruchterman_reingold")
  
 
 plt.title("spring")
 
 
-# In[24]:
+# In[100]:
 
 
 leng = len(commiter[0][0])
-x=0
+foll=0 # 총 팔로워의 숫자
 for i in range(0,len(commiter[0][0])) :
-    x = x+len(follower_r[i])
+    foll = foll+len(followers[0][0][i])
 
 
-print(x)
+
+    
+num = foll/leng
+print(num)
 
 
-# In[25]:
+# In[101]:
 
 
-follower_r
+leng = len(commiter[0][0])
+follw=0 # 총 팔로윙의 숫자
+for i in range(0,len(commiter[0][0])) :
+    follw = follw+len(following[0][0][i])
+
+
+
+    
+num1 = follw/leng
+print(num1)
+
+
+# In[113]:
+
+
+from matplotlib import pyplot as plt
+movies = ['followers','following']
+num_of_oscars = [num,num1]
+xs = [i + 0.1 for i, _ in enumerate(movies)]
+plt.bar(xs,num_of_oscars)
+plt.ylabel('figure')
+plt.title('followers and following')
+plt.xticks([i + 0.5 for i, _ in enumerate(movies)],movies)
+plt.show()
 
