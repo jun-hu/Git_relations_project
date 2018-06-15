@@ -159,3 +159,61 @@ for i in range(0, len(following[0][0])):
 # In[30]:
 
 
+topic_ = []
+
+df = spark.read.json("/home/project/outputjson.json", multiLine=True, mode="DROPMALFORMED")
+
+df = df.drop('selectedRepo')
+
+topic = df.select("trending.topic").collect()
+
+for x in range(0, len(topic[0][0])):
+
+    xx = len(topic[0][0][x])
+
+    for y in range(0, xx):
+        topic_.append(topic[0][0][x][y])
+
+w_count = {}
+
+for lst in topic_:
+
+    try:
+        w_count[lst] += 1
+
+    except:
+        w_count[lst] = 1
+
+print w_count
+
+# In[43]:
+
+
+import json
+import ast
+
+lang_name = []
+lang_per = []
+
+comm = jsonData.select("trending").select("trending.language").toJSON().first()
+
+lang_dict = ast.literal_eval(comm.encode("utf-8"))
+for item in lang_dict['language']:
+    lang_name.extend(item.keys())
+    lang_per.extend(item.values())
+
+w_count_ = {}
+
+for lst in lang_name:
+
+    try:
+        w_count_[lst] += 1
+
+    except:
+        w_count_[lst] = 1
+
+print w_count_
+
+
+
+
